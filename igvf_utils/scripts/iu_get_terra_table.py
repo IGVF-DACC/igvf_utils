@@ -12,7 +12,6 @@ Use this script to export Terra's table to TSV.
 """
 
 import argparse
-import igvf_utils
 from igvf_utils.terra import (
     get_default_workspace_name,
     get_default_workspace_namespace,
@@ -28,11 +27,11 @@ def get_parser():
     parser.add_argument("-t", "--terra-table-name", required=True, help="""
         Terra workspace's table name.""")
 
-    parser.add_argument("-b", "--terra-workspace-namespace", required=True, help="""
+    parser.add_argument("-b", "--terra-workspace-namespace", required=False, help="""
         Terra workspace namespace (billing account name).""",
         default=get_default_workspace_namespace())
 
-    parser.add_argument("-w", "--terra-workspace-name", required=True, help="""
+    parser.add_argument("-w", "--terra-workspace-name", required=False, help="""
         Terra workspace name.""",
         default=get_default_workspace_name())
 
@@ -51,8 +50,8 @@ def main():
     args = parser.parse_args()
 
     tsv_str = get_terra_table_tsv(
-        args.workspace_namespace,
-        args.workspace_name,
+        args.terra_workspace_namespace,
+        args.terra_workspace_name,
         args.terra_table_name,
     )
 

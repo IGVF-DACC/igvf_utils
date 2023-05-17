@@ -14,6 +14,7 @@ from firecloud import api
 from pandas import DataFrame
 import json
 import logging
+import os
 
 
 ENV_VAR_WORKSPACE_NAME="WORKSPACE_NAME"
