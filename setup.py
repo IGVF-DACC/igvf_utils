@@ -44,6 +44,7 @@ setup(
         "pillow",
         "requests",
         "urllib3",
+        "firecloud",
     ],
   extras_require={
       "dev": [
