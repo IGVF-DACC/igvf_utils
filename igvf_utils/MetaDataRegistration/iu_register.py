@@ -103,7 +103,7 @@ def get_parser():
         default=get_default_workspace_name())
 
     infile_group.add_argument("-t", "--terra-table-name", required=True, help="""
-    Terra's data table name. Read data from it instead of a TSV file defined with --infile.
+    Terra's data table name. Read data from it and write to a temporary JSON file and pass it to --infile.
 
     See help for --infile about detailed data format.
     """)
@@ -192,15 +192,15 @@ def main():
     schema = conn.profiles.get_profile_from_id(profile_id)
 
     if args.terra_table_name:
-        # make a temp TSV file
-        with tempfile.NamedTemporaryFile(suffix=".tsv", delete=False) as tf:
+        # make a temp JSON file
+        with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as tf:
             # read from Terra table and write to the temp file
-            tsv_str = get_terra_table_tsv(
+            table_json = get_terra_table_json(
                 args.terra_workspace_namespace,
                 args.terra_workspace_name,
                 args.terra_table_name,
             )
-            tf.write(tsv_str)
+            tf.write(json.dumps(table_json))
 
         infile = tf.name;
     else:

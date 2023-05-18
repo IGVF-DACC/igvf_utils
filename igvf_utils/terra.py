@@ -38,9 +38,9 @@ def get_default_workspace_namespace():
     return os.environ.get(ENV_VAR_WORKSPACE_NAMESPACE)
 
 
-def get_terra_table_tsv(workspace_namespace, workspace_name, table_name):
+def get_terra_table_json(workspace_namespace, workspace_name, table_name):
     """
-    Get Terra workspace's table in TSV string.
+    Get Terra workspace's table in a JSON format.
     Such table is called entities and each row in a table is called entity.
     See https://api.firecloud.org/#/Entities/downloadEntitiesTSV for details.
 
@@ -52,7 +52,7 @@ def get_terra_table_tsv(workspace_namespace, workspace_name, table_name):
         table_name: `str`. Workspace's table name (called entity_type in their API).
 
     Returns:
-        `str`: TSV string excluding Terra table's primary/unique key (marked as "entity:" in their table).
+        `dict`: JSON excluding Terra table's primary/unique key (marked as "entity:" in their table).
 
     Raises:
         `HTTPError `: Reraised from Terra's REST API.
@@ -71,5 +71,26 @@ def get_terra_table_tsv(workspace_namespace, workspace_name, table_name):
     for entity in org_data:
         parsed.append(entity["attributes"])
 
-    table = DataFrame.from_dict(parsed)
+    return parsed
+
+
+def get_terra_table_tsv(workspace_namespace, workspace_name, table_name):
+    """
+    Get Terra workspace's table in TSV string.
+
+    Args:
+        workspace_namespace: `str`. Terra billing project name.
+        workspace_name: `str`. Terra workspace name.
+        table_name: `str`. Workspace's table name (called entity_type in their API).
+
+    Returns:
+        `str`: TSV string excluding Terra table's primary/unique key (marked as "entity:" in their table).
+
+    Raises:
+        `HTTPError `: Reraised from Terra's REST API.
+        `TerraErrorTableNotFound `: Raise if table does not exist.
+    """
+    table_json = get_terra_table_json(workspace_namespace, workspace_name, table_name)
+
+    table = DataFrame.from_dict(table_json)
     return table.to_csv(sep="\t", index=False)

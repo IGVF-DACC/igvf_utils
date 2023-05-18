@@ -18,6 +18,10 @@ from igvf_utils.terra import (
     get_terra_table_tsv,
 )
 import os
+import json
+
+
+DEFAULT_JSON_INDENT=4
 
 
 def get_parser():
@@ -36,8 +40,7 @@ def get_parser():
         default=get_default_workspace_name())
 
     parser.add_argument("-o", "--outfile", required=True, help="""
-        The output file, which is in the same as the input file except for the addition of the
-        tab-delimited columns - one for each alias.
+        The output JSON file.
     """)
 
     return parser
@@ -49,7 +52,7 @@ def main():
     parser = get_parser()
     args = parser.parse_args()
 
-    tsv_str = get_terra_table_tsv(
+    table_json = get_terra_table_json(
         args.terra_workspace_namespace,
         args.terra_workspace_name,
         args.terra_table_name,
@@ -58,7 +61,7 @@ def main():
     outfile = args.outfile
 
     fout = open(outfile, 'w')
-    fout.write(tsv_str)
+    fout.write(json.dumps(table_json, indent=DEFAULT_JSON_INDENT))
     fout.close()
 
 
