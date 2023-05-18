@@ -31,7 +31,7 @@ def get_parser():
         Terra workspace namespace (billing account name).""",
         default=get_default_workspace_namespace())
 
-    parser.add_argument("-w", "--terra-workspace-name", required=False, help="""
+    parser.add_argument("-n", "--terra-workspace-name", required=False, help="""
         Terra workspace name.""",
         default=get_default_workspace_name())
 

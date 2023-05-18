@@ -44,6 +44,12 @@ import igvf_utils.connection as iuc
 from igvf_utils.parent_argparser import igvf_login_parser
 from igvf_utils.profiles import Profiles
 
+from igvf_utils.terra import (
+    get_default_workspace_name,
+    get_default_workspace_namespace,
+    get_terra_table_tsv,
+)
+
 # Check that Python3 is being used
 v = sys.version_info
 if v < (3, 3):
@@ -86,7 +92,23 @@ def get_parser():
     type-checking in order to type-cast any values in the input file to the proper type (i.e. some
     values need to be submitted as integers, not strings).""")
 
-    parser.add_argument("-i", "--infile", required=True, help="""
+    infile_group = parser.add_mutually_exclusive_group()
+
+    parser.add_argument("-b", "--terra-workspace-namespace", required=False, help="""
+        Terra workspace namespace (billing account name).""",
+        default=get_default_workspace_namespace())
+
+    parser.add_argument("-n", "--terra-workspace-name", required=False, help="""
+        Terra workspace name.""",
+        default=get_default_workspace_name())
+
+    infile_group.add_argument("-t", "--terra-table-name", required=True, help="""
+    Terra's data table name. Read data from it instead of a TSV file defined with --infile.
+
+    See help for --infile about detailed data format.
+    """)
+
+    infile_group.add_argument("-i", "--infile", required=True, help="""
     The JSON input file or tab-delimited input file. 
 
     **The tab-delimited file format:**
@@ -168,7 +190,22 @@ def main():
     conn.set_submission(True)
 
     schema = conn.profiles.get_profile_from_id(profile_id)
-    infile = args.infile
+
+    if args.terra_table_name:
+        # make a temp TSV file
+        with tempfile.NamedTemporaryFile(suffix=".tsv", delete=False) as tf:
+            # read from Terra table and write to the temp file
+            tsv_str = get_terra_table_tsv(
+                args.terra_workspace_namespace,
+                args.terra_workspace_name,
+                args.terra_table_name,
+            )
+            tf.write(tsv_str)
+
+        infile = tf.name;
+    else:
+        infile = args.infile
+
     patch = args.patch
     rmpatch = args.rm_patch
     if args.remove_property is not None:
