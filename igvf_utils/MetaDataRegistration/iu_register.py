@@ -47,7 +47,7 @@ from igvf_utils.profiles import Profiles
 from igvf_utils.terra import (
     get_default_workspace_name,
     get_default_workspace_namespace,
-    get_terra_table_tsv,
+    get_terra_table_json,
 )
 
 # Check that Python3 is being used
