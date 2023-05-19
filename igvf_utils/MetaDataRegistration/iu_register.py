@@ -38,6 +38,7 @@ import os
 import re
 import sys
 import requests
+import tempfile
 
 import igvf_utils.utils as iuu
 import igvf_utils.connection as iuc
@@ -102,13 +103,13 @@ def get_parser():
         Terra workspace name.""",
         default=get_default_workspace_name())
 
-    infile_group.add_argument("-t", "--terra-table-name", required=True, help="""
+    infile_group.add_argument("-t", "--terra-table-name", required=False, help="""
     Terra's data table name. Read data from it and write to a temporary JSON file and pass it to --infile.
 
     See help for --infile about detailed data format.
     """)
 
-    infile_group.add_argument("-i", "--infile", required=True, help="""
+    infile_group.add_argument("-i", "--infile", required=False, help="""
     The JSON input file or tab-delimited input file. 
 
     **The tab-delimited file format:**
@@ -193,7 +194,7 @@ def main():
 
     if args.terra_table_name:
         # make a temp JSON file
-        with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as tf:
+        with tempfile.NamedTemporaryFile(suffix=".json", delete=False, mode="w") as tf:
             # read from Terra table and write to the temp file
             table_json = get_terra_table_json(
                 args.terra_workspace_namespace,
@@ -205,6 +206,11 @@ def main():
         infile = tf.name;
     else:
         infile = args.infile
+
+    if not infile:
+        raise argparse.ArgumentError(
+            "Input data source should be define with either --terra-table-name or --infile."
+        )
 
     patch = args.patch
     rmpatch = args.rm_patch
