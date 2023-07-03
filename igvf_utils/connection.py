@@ -815,11 +815,11 @@ class Connection:
         else:
             payload[self.profiles.MD5SUM_NAME_PROP_NAME] = iuu.calculate_md5sum(file_name)
         # Set file_size
-        if (self.profiles.FILE_SIZE_PROP_NAME in payload) and (payload[self.profiles.FILE_SIZE_PROP_NAME]):
-            # Already set; nothing to do.
-            pass
-        else:
-            payload[self.profiles.FILE_SIZE_PROP_NAME] = iuu.calculate_file_size(file_name)
+        # if (self.profiles.FILE_SIZE_PROP_NAME in payload) and (payload[self.profiles.FILE_SIZE_PROP_NAME]):
+        #     # Already set; nothing to do.
+        #     pass
+        # else:
+        #     payload[self.profiles.FILE_SIZE_PROP_NAME] = iuu.calculate_file_size(file_name)
         return payload
 
     def before_post_fastq_file(self, payload):
