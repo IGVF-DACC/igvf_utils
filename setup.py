@@ -38,12 +38,13 @@ setup(
         "boto3",
         "exifread",
         "google-api-python-client",
-        "google-cloud-storage==1.28.1",
+        "google-cloud-storage",
         "inflection",
         "jsonschema",
         "pillow",
         "requests",
         "urllib3",
+        "firecloud",
     ],
   extras_require={
       "dev": [
