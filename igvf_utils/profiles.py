@@ -229,6 +229,7 @@ class Profiles:
     #: This is asserted for inclusion in ``Profile.PROFILES``.
     FILE_PROFILE_ID = [
         "alignment_file",
+        "configuration_file",
         "reference_file",
         "sequence_file",
         "signal_file"
