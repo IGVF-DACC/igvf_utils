@@ -102,6 +102,25 @@ perspective of a `Connection` instance, which will be removed from the payload p
     
   conn.patch(payload)
 
+File Upload
+-----------
+
+Given the File record IGVFFI2246NBHO, say that we need to upload the corresponding FASTQ file to AWS
+(i.e. maybe the former attempt failed at the time of creating the File record). Here's how to
+do it:
+
+::
+
+  conn.upload_file(file_id="IGVFFI2246NBHO")
+
+This will only work if the File record has the `submitted_file_name` property set, which is
+interpreted as the local path to the file to submit.
+You can also explicitly set the path to the file to upload:
+
+::
+
+  conn.upload_file(file_id="IGVFFI2246NBHO",file_path="/path/to/myfile")
+
 POST Request
 ------------
 
