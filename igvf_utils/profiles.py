@@ -230,6 +230,7 @@ class Profiles:
     FILE_PROFILE_ID = [
         "alignment_file",
         "configuration_file",
+        "matrix_file",
         "reference_file",
         "sequence_file",
         "signal_file"
