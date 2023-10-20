@@ -16,6 +16,7 @@ from requests.packages.urllib3.exceptions import InsecureRequestWarning
 import subprocess
 import urllib
 import boto3
+import io
 
 # inhouse libraries
 import igvf_utils.transfer_to_gcp
@@ -1743,6 +1744,10 @@ class Connection:
                                  env=os.environ.update(aws_creds),
                                  stdout=subprocess.PIPE,
                                  stderr=subprocess.PIPE)
+        for line in io.TextIOWrapper(popen.stdout, newline=""):
+            print(line.rstrip(), end="\n")
+        popen.wait()
+
         stdout, stderr = popen.communicate()
         stdout = stdout.decode("utf-8")
         stderr = stderr.decode("utf-8")
