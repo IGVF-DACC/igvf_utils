@@ -14,6 +14,7 @@ import os
 import requests
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 import subprocess
+import sys
 import urllib
 import boto3
 import io
@@ -1745,7 +1746,7 @@ class Connection:
                                  stdout=subprocess.PIPE,
                                  stderr=subprocess.PIPE)
         for line in io.TextIOWrapper(popen.stdout, newline=""):
-            self.debug_logger.debug(line.rstrip())
+            sys.stdout.write('\r'+line)
         popen.wait()
 
         stdout, stderr = popen.communicate()
