@@ -1745,7 +1745,7 @@ class Connection:
                                  stdout=subprocess.PIPE,
                                  stderr=subprocess.PIPE)
         for line in io.TextIOWrapper(popen.stdout, newline=""):
-            self.debug_logger.debug(line.rstrip(), end="\n")
+            self.debug_logger.debug(line.rstrip())
         popen.wait()
 
         stdout, stderr = popen.communicate()
