@@ -1771,6 +1771,7 @@ class Connection:
                                  env=os.environ.update(aws_creds),
                                  stdout=subprocess.PIPE,
                                  stderr=subprocess.PIPE)
+        max_stdout_str_length = 0
         for line in io.TextIOWrapper(popen.stdout, newline=""):
             if line.startswith("Completed"):
                 current, total, original_text = self._parse_aws_upload_stdout(line)
@@ -1781,9 +1782,14 @@ class Connection:
                 incompleted_scaled = (50-completed_scaled)
                 incompleted_scaled_str = incompleted_scaled*' '
 
-                sys.stdout.write(
+                report_string = (
                     f"\rUploading: [{completed_scaled_str}{incompleted_scaled_str}] "
-                    f"{str('{:.2f}%'.format(pct_done*100))} done ({original_text})")
+                    f"{str('{:.2f}%'.format(pct_done*100))} done ({original_text})"
+                )
+                if len(report_string) > max_stdout_str_length:
+                    max_stdout_str_length = len(report_string)
+                padding = ' '*(max_stdout_str_length-len(report_string))
+                sys.stdout.write(report_string + padding)
             else:
                 sys.stdout.write("\n")
             #sys.stdout.write('\r'+line)
