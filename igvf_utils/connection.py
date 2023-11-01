@@ -14,8 +14,10 @@ import os
 import requests
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 import subprocess
+import sys
 import urllib
 import boto3
+import io
 
 # inhouse libraries
 import igvf_utils.transfer_to_gcp
@@ -233,6 +235,32 @@ class Connection:
         handler.setLevel(level)
         handler.setFormatter(f_formatter)
         logger.addHandler(handler)
+
+    def _parse_aws_upload_stdout(self, line):
+        """
+        Parses the stdout from AWS uploading to read the current amount uploaded and
+        total file size.
+
+        Args:
+            line: The stdout from the aws s3 cp command.
+        """
+        unit_mapping = {
+            "Bytes": 1,
+            "KiB": 1000,
+            "MiB": 1000000,
+            "GiB": 1000000000,
+            "TiB": 1000000000000,
+        }
+        (segment_1, segment_2) = line.split("(")[0].split("/")
+        segment_1 = segment_1.split(" ")
+        segment_2 = segment_2.split(" ")
+
+        current_size = float(segment_1[1])
+        current_size_units = segment_1[2]
+        total_size = float(segment_2[0])
+        total_size_units = segment_2[1]
+
+        return current_size*unit_mapping[current_size_units], total_size*unit_mapping[total_size_units], f"{current_size} {current_size_units}/{total_size} {total_size_units}"
 
     @property
     def auth(self):
@@ -1743,6 +1771,30 @@ class Connection:
                                  env=os.environ.update(aws_creds),
                                  stdout=subprocess.PIPE,
                                  stderr=subprocess.PIPE)
+        max_stdout_str_length = 0
+        for line in io.TextIOWrapper(popen.stdout, newline=""):
+            if line.startswith("Completed"):
+                current, total, original_text = self._parse_aws_upload_stdout(line)
+
+                pct_done = current/total
+                completed_scaled = int(pct_done*50)
+                completed_scaled_str = completed_scaled*'█'
+                incompleted_scaled = (50-completed_scaled)
+                incompleted_scaled_str = incompleted_scaled*' '
+
+                report_string = (
+                    f"\rUploading: [{completed_scaled_str}{incompleted_scaled_str}] "
+                    f"{str('{:.2f}%'.format(pct_done*100))} done ({original_text})"
+                )
+                if len(report_string) > max_stdout_str_length:
+                    max_stdout_str_length = len(report_string)
+                padding = ' '*(max_stdout_str_length-len(report_string))
+                sys.stdout.write(report_string + padding)
+            else:
+                sys.stdout.write("\n")
+            #sys.stdout.write('\r'+line)
+        popen.wait()
+
         stdout, stderr = popen.communicate()
         stdout = stdout.decode("utf-8")
         stderr = stderr.decode("utf-8")
