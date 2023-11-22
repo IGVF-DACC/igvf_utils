@@ -90,7 +90,7 @@ class IgvfSchema:
         Returns:
             `bool`: Indicates if the schema has an `award` property present.
         """
-        return iu.AWARD_PROP_NAME in self.schema
+        return iu.AWARD_PROP_NAME in [p.name for p in self._properties]
 
     @property
     def has_alias(self):
@@ -98,7 +98,7 @@ class IgvfSchema:
         Returns:
             `bool`: Indicates if the schema has an `alias` property present.
         """
-        return iu.ALIAS_PROP_NAME in self.schema
+        return iu.ALIAS_PROP_NAME in [p.name for p in self._properties]
 
     @property
     def non_writable_props(self):

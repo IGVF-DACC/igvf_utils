@@ -204,7 +204,7 @@ class TestConnection(unittest.TestCase):
         Tests the method ``check_dry_run`` for returning True when the ``Connection`` class is
         instantiated in dry-run mode.
         """
-        self.conn = Connection(eu.DCC_DEV_MODE, dry_run=True, no_log_file=True)
+        self.conn = Connection(iu.DCC_DEV_MODE, dry_run=True, no_log_file=True)
         self.assertEqual(True, self.conn.check_dry_run())
 
     def test_bedfile_download(self):
