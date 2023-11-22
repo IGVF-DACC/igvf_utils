@@ -1024,7 +1024,8 @@ class Connection:
                 raise MissingAlias(
                     ("Missing property '{}' in payload {}. This is required by default for the profiles"
                      " that include this property, and can be disabled by setting the `require_aliases`"
-                     " argument to False in the call to this method, being `igvf_utils.connection.Connection.post()`").format(iu.ALIAS_PROP_NAME,payload))
+                     " argument to False in the call to this method, being `igvf_utils.connection.Connection.post()`."
+                     " If using the iu_register.py script, this can also be disabled by passing the --no-aliases option.").format(iu.ALIAS_PROP_NAME,payload))
 
         # Validate the payload against the schema
         ### This doesn't work as locally I can't use jsonschema to validate a profile with
