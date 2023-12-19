@@ -230,10 +230,13 @@ class Profiles:
     FILE_PROFILE_ID = [
         "alignment_file",
         "configuration_file",
+        "genome_browser_annotation_file",
+        "image_file",
         "matrix_file",
         "reference_file",
         "sequence_file",
-        "signal_file"
+        "signal_file",
+        "tabular_file"
     ]
 
     #: Constant storing a property name of the File subclasses.
