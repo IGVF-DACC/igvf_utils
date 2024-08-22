@@ -233,6 +233,7 @@ class Profiles:
         "genome_browser_annotation_file",
         "image_file",
         "matrix_file",
+        "model_file",
         "reference_file",
         "sequence_file",
         "signal_file",
