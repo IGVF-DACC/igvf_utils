@@ -163,15 +163,15 @@ def main():
     no_aliases = args.no_aliases
     overwrite_array_values = args.overwrite_array_values
 
-    current_local_commit = subprocess.check_output(['git', 'rev-parse', 'HEAD'])
+    current_local_commit = subprocess.check_output(['git', 'rev-parse', 'HEAD']).strip().decode('UTF-8')
     repo_url = 'https://github.com/IGVF-DACC/igvf_utils.git'
     process = subprocess.Popen(["git", "ls-remote", repo_url], stdout=subprocess.PIPE)
     stdout, stderr = process.communicate()
     sha = re.split(r'\t+', stdout.decode('ascii'))[0]
-    print(f'Current commit: {current_local_commit}')
-    print(f'Latest remote commit: {sha}')
+    print(f'Local commit:\t{current_local_commit}')
+    print(f'Remote commit:\t{sha}')
     if sha != current_local_commit:
-        print(f'WARNING: your local version of igvf_utils is not in sync with the remote repository. Please git pull before proceeding.')
+        print(f'WARNING: local version of igvf_utils is not in sync with the remote repository. Please git pull before proceeding.\n')
 
     conn = iuc.Connection(igvf_mode, dry_run)
 
