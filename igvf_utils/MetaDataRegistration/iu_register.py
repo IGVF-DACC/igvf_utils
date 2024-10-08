@@ -171,7 +171,13 @@ def main():
     print(f'Local commit:\t{current_local_commit}')
     print(f'Remote commit:\t{sha}')
     if sha != current_local_commit:
-        print(f'WARNING: local version of igvf_utils is not in sync with the remote repository. Please git pull before proceeding.\n')
+        print(
+            f'*********************************************************'
+            f'WARNING: local version of igvf_utils is not in sync with '
+            f'the remote repository. Please git pull before proceeding.'
+            f'*********************************************************'
+            f'\n'
+        )
 
     conn = iuc.Connection(igvf_mode, dry_run)
 
