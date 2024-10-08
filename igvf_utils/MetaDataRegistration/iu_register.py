@@ -177,11 +177,15 @@ def main():
     gen = create_payloads(schema=schema, infile=infile)
     for payload in gen:
         if not patch and not rmpatch:
-            conn.post(
-                payload,
-                require_aliases=not no_aliases,
-                upload_file=not args.no_upload_file,
-            )
+            try:
+                conn.post(
+                    payload,
+                    require_aliases=not no_aliases,
+                    upload_file=not args.no_upload_file,
+                )
+            except json.decoder.JSONDecodeError:
+                 print("JSONDecodeError: Check that your URL specified in -m is correct.")
+
         elif rmpatch:
             record_id = payload.get(RECORD_ID_FIELD, False)
             if not record_id:
@@ -190,7 +194,10 @@ def main():
                         iuu.print_format_dict(payload), RECORD_ID_FIELD))
             payload.pop(RECORD_ID_FIELD)
             payload.update({conn.IGVFID_KEY: record_id})
-            conn.remove_and_patch(props=props_to_remove, patch=payload, extend_array_values=not overwrite_array_values)
+            try:
+                conn.remove_and_patch(props=props_to_remove, patch=payload, extend_array_values=not overwrite_array_values)
+            except json.decoder.JSONDecodeError:
+                 print("JSONDecodeError: Check that your URL specified in -m is correct.")
         elif patch:
             record_id = payload.get(RECORD_ID_FIELD, False)
             if not record_id:
@@ -199,7 +206,10 @@ def main():
                         iuu.print_format_dict(payload), RECORD_ID_FIELD))
             payload.pop(RECORD_ID_FIELD)
             payload.update({conn.IGVFID_KEY: record_id})
-            conn.patch(payload=payload, extend_array_values=not overwrite_array_values)
+            try:
+                conn.patch(payload=payload, extend_array_values=not overwrite_array_values)
+            except json.decoder.JSONDecodeError:
+                 print("JSONDecodeError: Check that your URL specified in -m is correct.")
 
 
 def check_valid_json(prop, val, row_count):
