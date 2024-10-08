@@ -6,6 +6,6 @@ google-cloud-storage==1.28.1
 inflection
 jsonschema
 pillow
-requests
+requests==2.25
 sphinx-argparse==0.5.1
 urllib3
