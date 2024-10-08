@@ -255,7 +255,10 @@ def main():
     gen = create_payloads(schema=schema, infile=infile)
     for payload in gen:
         if not patch and not rmpatch:
-            do_post(conn,payload,no_aliases,args)
+            try:
+                do_post(conn,payload,no_aliases,args)
+            except json.decoder.JSONDecodeError:
+                 print("JSONDecodeError: Check that your URL specified in -m is correct.")
         elif rmpatch:
             record_id = payload.get(RECORD_ID_FIELD, False)
             if not record_id:
@@ -264,7 +267,10 @@ def main():
                         iuu.print_format_dict(payload), RECORD_ID_FIELD))
             payload.pop(RECORD_ID_FIELD)
             payload.update({conn.IGVFID_KEY: record_id})
-            do_remove_and_patch(conn,props_to_remove,payload,overwrite_array_values)
+            try:
+                do_remove_and_patch(conn,props_to_remove,payload,overwrite_array_values)
+            except json.decoder.JSONDecodeError:
+                 print("JSONDecodeError: Check that your URL specified in -m is correct.")
         elif patch:
             record_id = payload.get(RECORD_ID_FIELD, False)
             if not record_id:
@@ -273,7 +279,11 @@ def main():
                         iuu.print_format_dict(payload), RECORD_ID_FIELD))
             payload.pop(RECORD_ID_FIELD)
             payload.update({conn.IGVFID_KEY: record_id})
-            do_patch(conn,payload,overwrite_array_values)
+            try:
+                do_patch(conn,payload,overwrite_array_values)
+            except json.decoder.JSONDecodeError:
+                 print("JSONDecodeError: Check that your URL specified in -m is correct.")
+
 
 def check_valid_json(prop, val, row_count):
     """
