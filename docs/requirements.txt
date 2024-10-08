@@ -7,5 +7,5 @@ inflection
 jsonschema
 pillow
 requests
-sphinx-argparse==0.5.1
+sphinx-argparse
 urllib3
