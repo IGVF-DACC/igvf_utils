@@ -172,10 +172,10 @@ def main():
     print(f'Remote commit:\t{sha}')
     if sha != current_local_commit:
         print(
-            f'*********************************************************'
-            f'WARNING: local version of igvf_utils is not in sync with '
-            f'the remote repository. Please git pull before proceeding.'
-            f'*********************************************************'
+            f'*********************************************************\n'
+            f'WARNING: local version of igvf_utils is not in sync with \n'
+            f'the remote repository. Please git pull before proceeding.\n'
+            f'*********************************************************\n'
             f'\n'
         )
 
