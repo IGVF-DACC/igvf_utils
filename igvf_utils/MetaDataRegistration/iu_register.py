@@ -38,6 +38,7 @@ import os
 import re
 import sys
 import requests
+import subprocess
 
 import igvf_utils.utils as iuu
 import igvf_utils.connection as iuc
@@ -161,6 +162,22 @@ def main():
     dry_run = args.dry_run
     no_aliases = args.no_aliases
     overwrite_array_values = args.overwrite_array_values
+
+    current_local_commit = subprocess.check_output(['git', 'rev-parse', 'HEAD']).strip().decode('UTF-8')
+    repo_url = 'https://github.com/IGVF-DACC/igvf_utils.git'
+    process = subprocess.Popen(["git", "ls-remote", repo_url], stdout=subprocess.PIPE)
+    stdout, stderr = process.communicate()
+    sha = re.split(r'\t+', stdout.decode('ascii'))[0]
+    print(f'Local commit:\t{current_local_commit}')
+    print(f'Remote commit:\t{sha}')
+    if sha != current_local_commit:
+        print(
+            f'*********************************************************\n'
+            f'WARNING: local version of igvf_utils is not in sync with \n'
+            f'the remote repository. Please git pull before proceeding.\n'
+            f'*********************************************************\n'
+            f'\n'
+        )
 
     conn = iuc.Connection(igvf_mode, dry_run)
 
