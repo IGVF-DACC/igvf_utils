@@ -157,7 +157,7 @@ def get_parser():
     return parser
 
 ##decorator for preventing time out##
-def retry(tries=10, delay=10, backoff=2):
+def retry(tries=1, delay=5, backoff=2):
     import time
     """Retry calling the decorated function using an exponential backoff.
 
