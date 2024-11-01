@@ -45,6 +45,8 @@ import igvf_utils.connection as iuc
 from igvf_utils.parent_argparser import igvf_login_parser
 from igvf_utils.profiles import Profiles
 
+from functools import wraps #for retry function
+
 # Check that Python3 is being used
 v = sys.version_info
 if v < (3, 3):
@@ -146,13 +148,13 @@ def get_parser():
     Presence of this option indicates to remove a property, as specified by the -r argument,
     from an existing DACC record, and then PATCH it with the payload specified in -i.""")
 
-    group.add_argument("--tries", action="store_true", default=1, help="""
+    parser.add_argument("--tries", type=int, default=1, help="""
     Number of times to try before giving up to prevent time out error when doing post or patch on a large set.""")
 
-    group.add_argument("--delay", action="store_true", default=5, help="""
+    parser.add_argument("--delay", type=int, default=5, help="""
     Initial delay between retries in seconds.""")
 
-    group.add_argument("--backoff", action="store_true", default=2, help="""
+    parser.add_argument("--backoff", type=int, default=2, help="""
     Backoff multiplier, by default will double the delay each retry.""")
     return parser
 
