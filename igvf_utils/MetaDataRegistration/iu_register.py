@@ -148,6 +148,42 @@ def get_parser():
 
     return parser
 
+##decorator for backup off line, simply catch all exceptions##
+def retry(tries=10, delay=10, backoff=2):
+    import time
+    """Retry calling the decorated function using an exponential backoff.
+
+    http://www.saltycrane.com/blog/2009/11/trying-out-retry-decorator-python/
+    original from: http://wiki.python.org/moin/PythonDecoratorLibrary#Retry
+    
+    :param tries: number of times to try (not retry) before giving up
+    :type tries: int
+    :param delay: initial delay between retries in seconds
+    :type delay: int
+    :param backoff: backoff multiplier e.g. value of 2 will double the delay
+        each retry
+    :type backoff: int
+    """
+    def deco_retry(f):
+
+        @wraps(f)
+        def f_retry(*args, **kwargs):
+            mtries, mdelay = tries, delay
+            while mtries > 1:
+                try:
+                    return f(*args, **kwargs)
+                except Exception as e:
+                    print (str(e))
+                    msg = "Retrying in %d seconds..." % (mdelay)
+                    print(msg)
+                    time.sleep(mdelay)
+                    mtries -= 1
+                    mdelay *= backoff
+            return f(*args, **kwargs)
+
+        return f_retry  # true decorator
+
+    return deco_retry 
 
 def main():
     parser = get_parser()
@@ -179,8 +215,7 @@ def main():
             f'\n'
         )
 
-    conn = iuc.Connection(igvf_mode, dry_run)
-
+    conn = do_connection(igvf_mode, dry_run)
     # Put conn into submit mode:
     conn.set_submission(True)
 
@@ -216,8 +251,21 @@ def main():
                         iuu.print_format_dict(payload), RECORD_ID_FIELD))
             payload.pop(RECORD_ID_FIELD)
             payload.update({conn.IGVFID_KEY: record_id})
-            conn.patch(payload=payload, extend_array_values=not overwrite_array_values)
+            do_patch(conn,payload,overwrite_array_values)
 
+@retry(tries=10, delay=10,backoff=2)
+def do_post(conn,payload,no_aliases,args):
+    conn.post(payload,require_aliases=not no_aliases,upload_file=not args.no_upload_file)
+
+@retry(tries=10, delay=10,backoff=2)
+def do_patch(conn,payload,overwrite_array_values):
+    conn.patch(payload=payload, extend_array_values=not overwrite_array_values)
+
+##connection error could also occur when creating the connection##
+@retry(tries=10, delay=10,backoff=2)
+def do_connection(igvf_mode, dry_run):
+    conn = iuc.Connection(igvf_mode=igvf_mode, dry_run=dry_run)
+    return conn
 
 def check_valid_json(prop, val, row_count):
     """
