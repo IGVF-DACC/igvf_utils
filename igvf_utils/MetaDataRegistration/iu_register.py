@@ -156,7 +156,7 @@ def get_parser():
     Backoff multiplier, by default will double the delay each retry.""")
     return parser
 
-##decorator for backup off line, simply catch all exceptions##
+##decorator for preventing time out##
 def retry(tries=10, delay=10, backoff=2):
     import time
     """Retry calling the decorated function using an exponential backoff.
