@@ -164,13 +164,10 @@ def retry(tries=10, delay=10, backoff=2):
     http://www.saltycrane.com/blog/2009/11/trying-out-retry-decorator-python/
     original from: http://wiki.python.org/moin/PythonDecoratorLibrary#Retry
     
-    :param tries: number of times to try (not retry) before giving up
-    :type tries: int
-    :param delay: initial delay between retries in seconds
-    :type delay: int
-    :param backoff: backoff multiplier e.g. value of 2 will double the delay
-        each retry
-    :type backoff: int
+    args:
+        tries (int): number of times to try (not retry) before giving up
+        delay (int): initial delay between retries in seconds
+        backoff (int): backoff multiplier e.g. value of 2 will double the delay each retry
     """
     def deco_retry(f):
 
