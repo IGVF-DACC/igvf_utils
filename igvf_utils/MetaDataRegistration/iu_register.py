@@ -146,6 +146,14 @@ def get_parser():
     Presence of this option indicates to remove a property, as specified by the -r argument,
     from an existing DACC record, and then PATCH it with the payload specified in -i.""")
 
+    group.add_argument("--tries", type=int, action="store_true", default=1, help="""
+    Number of times to try before giving up to prevent time out error when doing post or patch on a large set.""")
+
+    group.add_argument("--delay", type=int, action="store_true", default=5, help="""
+    Initial delay between retries in seconds.""")
+
+    group.add_argument("--backoff", type=int, action="store_true", default=2, help="""
+    Backoff multiplier, by default will double the delay each retry.""")
     return parser
 
 ##decorator for backup off line, simply catch all exceptions##
@@ -198,6 +206,26 @@ def main():
     dry_run = args.dry_run
     no_aliases = args.no_aliases
     overwrite_array_values = args.overwrite_array_values
+    tries = args.tries
+    delay = args.delay
+    backoff = args.backoff
+
+    @retry(tries,delay,backoff)
+    def do_connection(igvf_mode, dry_run):
+        conn = iuc.Connection(igvf_mode=igvf_mode, dry_run=dry_run)
+        return conn
+
+    @retry(tries,delay,backoff)
+    def do_post(conn,payload,no_aliases,args):
+        conn.post(payload,require_aliases=not no_aliases,upload_file=not args.no_upload_file)
+
+    @retry(tries,delay,backoff)
+    def do_remove_and_patch(conn,props_to_remove,payload,overwrite_array_values):
+        conn.remove_and_patch(props=props_to_remove, patch=payload, extend_array_values=not overwrite_array_values)
+
+    @retry(tries,delay,backoff)
+    def do_patch(conn,payload,overwrite_array_values):
+        conn.patch(payload=payload, extend_array_values=not overwrite_array_values)
 
     current_local_commit = subprocess.check_output(['git', 'rev-parse', 'HEAD']).strip().decode('UTF-8')
     repo_url = 'https://github.com/IGVF-DACC/igvf_utils.git'
@@ -248,24 +276,6 @@ def main():
             payload.pop(RECORD_ID_FIELD)
             payload.update({conn.IGVFID_KEY: record_id})
             do_patch(conn,payload,overwrite_array_values)
-
-@retry(tries=10, delay=10,backoff=2)
-def do_post(conn,payload,no_aliases,args):
-    conn.post(payload,require_aliases=not no_aliases,upload_file=not args.no_upload_file)
-
-@retry(tries=10, delay=10,backoff=2)
-def do_remove_and_patch(conn,props_to_remove,payload,overwrite_array_values):
-    conn.remove_and_patch(props=props_to_remove, patch=payload, extend_array_values=not overwrite_array_values)
-
-@retry(tries=10, delay=10,backoff=2)
-def do_patch(conn,payload,overwrite_array_values):
-    conn.patch(payload=payload, extend_array_values=not overwrite_array_values)
-
-##connection error could also occur when creating the connection##
-@retry(tries=10, delay=10,backoff=2)
-def do_connection(igvf_mode, dry_run):
-    conn = iuc.Connection(igvf_mode=igvf_mode, dry_run=dry_run)
-    return conn
 
 def check_valid_json(prop, val, row_count):
     """
