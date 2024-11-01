@@ -229,11 +229,7 @@ def main():
     gen = create_payloads(schema=schema, infile=infile)
     for payload in gen:
         if not patch and not rmpatch:
-            conn.post(
-                payload,
-                require_aliases=not no_aliases,
-                upload_file=not args.no_upload_file,
-            )
+            do_post(conn,payload,no_aliases,args)
         elif rmpatch:
             record_id = payload.get(RECORD_ID_FIELD, False)
             if not record_id:
@@ -242,7 +238,7 @@ def main():
                         iuu.print_format_dict(payload), RECORD_ID_FIELD))
             payload.pop(RECORD_ID_FIELD)
             payload.update({conn.IGVFID_KEY: record_id})
-            conn.remove_and_patch(props=props_to_remove, patch=payload, extend_array_values=not overwrite_array_values)
+            do_remove_and_patch(conn,props_to_remove,payload,overwrite_array_values)
         elif patch:
             record_id = payload.get(RECORD_ID_FIELD, False)
             if not record_id:
@@ -256,6 +252,10 @@ def main():
 @retry(tries=10, delay=10,backoff=2)
 def do_post(conn,payload,no_aliases,args):
     conn.post(payload,require_aliases=not no_aliases,upload_file=not args.no_upload_file)
+
+@retry(tries=10, delay=10,backoff=2)
+def do_remove_and_patch(conn,props_to_remove,payload,overwrite_array_values):
+    conn.remove_and_patch(props=props_to_remove, patch=payload, extend_array_values=not overwrite_array_values)
 
 @retry(tries=10, delay=10,backoff=2)
 def do_patch(conn,payload,overwrite_array_values):
