@@ -45,6 +45,8 @@ import igvf_utils.connection as iuc
 from igvf_utils.parent_argparser import igvf_login_parser
 from igvf_utils.profiles import Profiles
 
+from functools import wraps #for retry function
+
 # Check that Python3 is being used
 v = sys.version_info
 if v < (3, 3):
@@ -146,8 +148,49 @@ def get_parser():
     Presence of this option indicates to remove a property, as specified by the -r argument,
     from an existing DACC record, and then PATCH it with the payload specified in -i.""")
 
+    parser.add_argument("--tries", type=int, default=1, help="""
+    Number of times to try before giving up to prevent time out error when doing post or patch on a large set.""")
+
+    parser.add_argument("--delay", type=int, default=5, help="""
+    Initial delay between retries in seconds.""")
+
+    parser.add_argument("--backoff", type=int, default=2, help="""
+    Backoff multiplier, by default will double the delay each retry.""")
     return parser
 
+##decorator for preventing time out##
+def retry(tries=1, delay=5, backoff=2):
+    import time
+    """Retry calling the decorated function using an exponential backoff.
+
+    http://www.saltycrane.com/blog/2009/11/trying-out-retry-decorator-python/
+    original from: http://wiki.python.org/moin/PythonDecoratorLibrary#Retry
+    
+    args:
+        tries (int): number of times to try (not retry) before giving up
+        delay (int): initial delay between retries in seconds
+        backoff (int): backoff multiplier e.g. value of 2 will double the delay each retry
+    """
+    def deco_retry(f):
+
+        @wraps(f)
+        def f_retry(*args, **kwargs):
+            mtries, mdelay = tries, delay
+            while mtries > 1:
+                try:
+                    return f(*args, **kwargs)
+                except Exception as e:
+                    print (str(e))
+                    msg = "Retrying in %d seconds..." % (mdelay)
+                    print(msg)
+                    time.sleep(mdelay)
+                    mtries -= 1
+                    mdelay *= backoff
+            return f(*args, **kwargs)
+
+        return f_retry  # true decorator
+
+    return deco_retry 
 
 def main():
     parser = get_parser()
@@ -162,6 +205,26 @@ def main():
     dry_run = args.dry_run
     no_aliases = args.no_aliases
     overwrite_array_values = args.overwrite_array_values
+    tries = args.tries
+    delay = args.delay
+    backoff = args.backoff
+
+    @retry(tries,delay,backoff)
+    def do_connection(igvf_mode, dry_run):
+        conn = iuc.Connection(igvf_mode=igvf_mode, dry_run=dry_run)
+        return conn
+
+    @retry(tries,delay,backoff)
+    def do_post(conn,payload,no_aliases,args):
+        conn.post(payload,require_aliases=not no_aliases,upload_file=not args.no_upload_file)
+
+    @retry(tries,delay,backoff)
+    def do_remove_and_patch(conn,props_to_remove,payload,overwrite_array_values):
+        conn.remove_and_patch(props=props_to_remove, patch=payload, extend_array_values=not overwrite_array_values)
+
+    @retry(tries,delay,backoff)
+    def do_patch(conn,payload,overwrite_array_values):
+        conn.patch(payload=payload, extend_array_values=not overwrite_array_values)
 
     current_local_commit = subprocess.check_output(['git', 'rev-parse', 'HEAD']).strip().decode('UTF-8')
     repo_url = 'https://github.com/IGVF-DACC/igvf_utils.git'
@@ -179,8 +242,7 @@ def main():
             f'\n'
         )
 
-    conn = iuc.Connection(igvf_mode, dry_run)
-
+    conn = do_connection(igvf_mode, dry_run)
     # Put conn into submit mode:
     conn.set_submission(True)
 
@@ -194,11 +256,7 @@ def main():
     gen = create_payloads(schema=schema, infile=infile)
     for payload in gen:
         if not patch and not rmpatch:
-            conn.post(
-                payload,
-                require_aliases=not no_aliases,
-                upload_file=not args.no_upload_file,
-            )
+            do_post(conn,payload,no_aliases,args)
         elif rmpatch:
             record_id = payload.get(RECORD_ID_FIELD, False)
             if not record_id:
@@ -207,7 +265,7 @@ def main():
                         iuu.print_format_dict(payload), RECORD_ID_FIELD))
             payload.pop(RECORD_ID_FIELD)
             payload.update({conn.IGVFID_KEY: record_id})
-            conn.remove_and_patch(props=props_to_remove, patch=payload, extend_array_values=not overwrite_array_values)
+            do_remove_and_patch(conn,props_to_remove,payload,overwrite_array_values)
         elif patch:
             record_id = payload.get(RECORD_ID_FIELD, False)
             if not record_id:
@@ -216,8 +274,7 @@ def main():
                         iuu.print_format_dict(payload), RECORD_ID_FIELD))
             payload.pop(RECORD_ID_FIELD)
             payload.update({conn.IGVFID_KEY: record_id})
-            conn.patch(payload=payload, extend_array_values=not overwrite_array_values)
-
+            do_patch(conn,payload,overwrite_array_values)
 
 def check_valid_json(prop, val, row_count):
     """
