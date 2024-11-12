@@ -256,7 +256,7 @@ def main():
     for payload in gen:
         if not patch and not rmpatch:
             try:
-                do_post(conn,payload,no_aliases,args)
+                do_post(conn, payload, no_aliases,args)
             except json.decoder.JSONDecodeError:
                  print("JSONDecodeError: Check that your URL specified in -m is correct.")
         elif rmpatch:
@@ -268,7 +268,7 @@ def main():
             payload.pop(RECORD_ID_FIELD)
             payload.update({conn.IGVFID_KEY: record_id})
             try:
-                do_remove_and_patch(conn,props_to_remove,payload,overwrite_array_values)
+                do_remove_and_patch(conn, props_to_remove, payload, overwrite_array_values)
             except json.decoder.JSONDecodeError:
                  print("JSONDecodeError: Check that your URL specified in -m is correct.")
         elif patch:
@@ -280,7 +280,7 @@ def main():
             payload.pop(RECORD_ID_FIELD)
             payload.update({conn.IGVFID_KEY: record_id})
             try:
-                do_patch(conn,payload,overwrite_array_values)
+                do_patch(conn, payload, overwrite_array_values)
             except json.decoder.JSONDecodeError:
                  print("JSONDecodeError: Check that your URL specified in -m is correct.")
 
