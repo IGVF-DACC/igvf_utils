@@ -44,6 +44,7 @@ import igvf_utils.utils as iuu
 import igvf_utils.connection as iuc
 from igvf_utils.parent_argparser import igvf_login_parser
 from igvf_utils.profiles import Profiles
+from igvf_utils.version import __version__
 
 from functools import wraps #for retry function
 
