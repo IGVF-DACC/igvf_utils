@@ -227,14 +227,12 @@ def main():
     def do_patch(conn,payload,overwrite_array_values):
         conn.patch(payload=payload, extend_array_values=not overwrite_array_values)
 
-    current_local_commit = subprocess.check_output(['git', 'rev-parse', 'HEAD']).strip().decode('UTF-8')
-    repo_url = 'https://github.com/IGVF-DACC/igvf_utils.git'
-    process = subprocess.Popen(["git", "ls-remote", repo_url], stdout=subprocess.PIPE)
-    stdout, stderr = process.communicate()
-    sha = re.split(r'\t+', stdout.decode('ascii'))[0]
-    print(f'Local commit:\t{current_local_commit}')
-    print(f'Remote commit:\t{sha}')
-    if sha != current_local_commit:
+    current_local_version = __version__
+    repo_tags = 'https://api.github.com/repos/IGVF-DACC/igvf_utils/tags'
+    latest_tag_version = requests.get(repo_tags).json()[0]['name']
+    print(f'Local version:\t{current_local_version}')
+    print(f'Remote version:\t{latest_tag_version}')
+    if current_local_version != latest_tag_version:
         print(
             f'*********************************************************\n'
             f'WARNING: local version of igvf_utils is not in sync with \n'
