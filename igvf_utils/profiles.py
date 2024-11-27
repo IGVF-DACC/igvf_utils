@@ -232,6 +232,7 @@ class Profiles:
         "configuration_file",
         "genome_browser_annotation_file",
         "image_file",
+        "index_file",
         "matrix_file",
         "model_file",
         "reference_file",

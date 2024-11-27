@@ -38,7 +38,7 @@ import os
 import re
 import sys
 import requests
-import subprocess
+import pkg_resources
 
 import igvf_utils.utils as iuu
 import igvf_utils.connection as iuc
