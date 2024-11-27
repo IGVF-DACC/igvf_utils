@@ -38,7 +38,7 @@ import os
 import re
 import sys
 import requests
-import pkg_resources
+from packaging.version import Version
 
 import igvf_utils.utils as iuu
 import igvf_utils.connection as iuc
@@ -232,7 +232,7 @@ def main():
     latest_tag_version = requests.get(repo_tags).json()[0]['name']
     print(f'Local version:\t{current_local_version}')
     print(f'Remote version:\t{latest_tag_version}')
-    if current_local_version != latest_tag_version:
+    if Version(current_local_version) < Version(latest_tag_version):
         print(
             f'*********************************************************\n'
             f'WARNING: local version of igvf_utils is not in sync with \n'

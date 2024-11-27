@@ -49,6 +49,7 @@ setup(
         "google-cloud-storage",
         "inflection",
         "jsonschema",
+        "packaging",
         "pillow",
         "requests",
         "urllib3",
