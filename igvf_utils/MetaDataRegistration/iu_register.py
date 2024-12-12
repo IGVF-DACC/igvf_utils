@@ -258,7 +258,7 @@ def main():
             try:
                 do_post(conn, payload, no_aliases,args)
             except json.decoder.JSONDecodeError:
-                 print("JSONDecodeError: Check that your URL specified in -m is correct.")
+                raise Exception("JSONDecodeError: Check that your URL specified in -m is correct.")
         elif rmpatch:
             record_id = payload.get(RECORD_ID_FIELD, False)
             if not record_id:
@@ -270,7 +270,7 @@ def main():
             try:
                 do_remove_and_patch(conn, props_to_remove, payload, overwrite_array_values)
             except json.decoder.JSONDecodeError:
-                 print("JSONDecodeError: Check that your URL specified in -m is correct.")
+                raise Exception("JSONDecodeError: Check that your URL specified in -m is correct.")
         elif patch:
             record_id = payload.get(RECORD_ID_FIELD, False)
             if not record_id:
@@ -282,7 +282,7 @@ def main():
             try:
                 do_patch(conn, payload, overwrite_array_values)
             except json.decoder.JSONDecodeError:
-                 print("JSONDecodeError: Check that your URL specified in -m is correct.")
+                raise Exception("JSONDecodeError: Check that your URL specified in -m is correct.")
 
 
 def check_valid_json(prop, val, row_count):

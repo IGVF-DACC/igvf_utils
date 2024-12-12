@@ -14,6 +14,7 @@ the terms 'profile' and 'schema' are used interchangeably in this package.
 import inflection
 import logging
 import requests
+import json
 
 import igvf_utils as iu
 import igvf_utils.utils as iuu
@@ -273,9 +274,12 @@ class Profiles:
             is `genetic_modification`.
         """
         url = iuu.url_join([self.igvf_url, iu.PROFILES_URL, "?format=json"])
-        profiles = requests.get(url,
-                                timeout=iu.TIMEOUT,
-                                headers=iuu.REQUEST_HEADERS_JSON).json()
+        try:
+            profiles = requests.get(url,
+                                    timeout=iu.TIMEOUT,
+                                    headers=iuu.REQUEST_HEADERS_JSON).json()
+        except json.decoder.JSONDecodeError:
+            raise Exception("JSONDecodeError: Check that your URL specified in -m is correct.")
         # Remove the "private" profiles, since these have differing semantics.
         private_profiles = [x for x in profiles if x.startswith("_") or x.startswith("Testing")]  # i.e. _subtypes
         for i in private_profiles:
