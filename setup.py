@@ -19,6 +19,14 @@ from setuptools import setup, find_packages
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
+def get_version():
+    with open(os.path.join('igvf_utils', 'version.py'), 'r') as f:
+        for line in f:
+            if line.startswith('__version__'):
+                return line.split('=')[1].replace("'", '')
+    raise RuntimeError('Version not found')
+
+
 SCRIPTS_DIR = os.path.join("igvf_utils", "scripts")
 scripts = glob.glob(os.path.join(SCRIPTS_DIR, "*.py"))
 scripts.remove(os.path.join(SCRIPTS_DIR, "__init__.py"))
@@ -41,6 +49,7 @@ setup(
         "google-cloud-storage",
         "inflection",
         "jsonschema",
+        "packaging",
         "pillow",
         "requests",
         "urllib3",
@@ -61,5 +70,5 @@ setup(
   },
   scripts=scripts,
   url="https://github.com/IGVF-DACC/igvf_utils",  # home page
-  version="1.0.0",
+  version=get_version(),
 )

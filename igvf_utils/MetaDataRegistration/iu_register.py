@@ -38,12 +38,13 @@ import os
 import re
 import sys
 import requests
-import subprocess
+from packaging.version import Version
 
 import igvf_utils.utils as iuu
 import igvf_utils.connection as iuc
 from igvf_utils.parent_argparser import igvf_login_parser
 from igvf_utils.profiles import Profiles
+from igvf_utils.version import __version__
 
 from functools import wraps #for retry function
 
@@ -226,14 +227,12 @@ def main():
     def do_patch(conn,payload,overwrite_array_values):
         conn.patch(payload=payload, extend_array_values=not overwrite_array_values)
 
-    current_local_commit = subprocess.check_output(['git', 'rev-parse', 'HEAD']).strip().decode('UTF-8')
-    repo_url = 'https://github.com/IGVF-DACC/igvf_utils.git'
-    process = subprocess.Popen(["git", "ls-remote", repo_url], stdout=subprocess.PIPE)
-    stdout, stderr = process.communicate()
-    sha = re.split(r'\t+', stdout.decode('ascii'))[0]
-    print(f'Local commit:\t{current_local_commit}')
-    print(f'Remote commit:\t{sha}')
-    if sha != current_local_commit:
+    current_local_version = __version__
+    repo_tags = 'https://api.github.com/repos/IGVF-DACC/igvf_utils/tags'
+    latest_tag_version = requests.get(repo_tags).json()[0]['name']
+    print(f'Local version:\t{current_local_version}')
+    print(f'Remote version:\t{latest_tag_version}')
+    if Version(current_local_version) < Version(latest_tag_version):
         print(
             f'*********************************************************\n'
             f'WARNING: local version of igvf_utils is not in sync with \n'
@@ -256,7 +255,10 @@ def main():
     gen = create_payloads(schema=schema, infile=infile)
     for payload in gen:
         if not patch and not rmpatch:
-            do_post(conn,payload,no_aliases,args)
+            try:
+                do_post(conn, payload, no_aliases,args)
+            except json.decoder.JSONDecodeError:
+                raise Exception("JSONDecodeError: Check that your URL specified in -m is correct.")
         elif rmpatch:
             record_id = payload.get(RECORD_ID_FIELD, False)
             if not record_id:
@@ -265,7 +267,10 @@ def main():
                         iuu.print_format_dict(payload), RECORD_ID_FIELD))
             payload.pop(RECORD_ID_FIELD)
             payload.update({conn.IGVFID_KEY: record_id})
-            do_remove_and_patch(conn,props_to_remove,payload,overwrite_array_values)
+            try:
+                do_remove_and_patch(conn, props_to_remove, payload, overwrite_array_values)
+            except json.decoder.JSONDecodeError:
+                raise Exception("JSONDecodeError: Check that your URL specified in -m is correct.")
         elif patch:
             record_id = payload.get(RECORD_ID_FIELD, False)
             if not record_id:
@@ -274,7 +279,11 @@ def main():
                         iuu.print_format_dict(payload), RECORD_ID_FIELD))
             payload.pop(RECORD_ID_FIELD)
             payload.update({conn.IGVFID_KEY: record_id})
-            do_patch(conn,payload,overwrite_array_values)
+            try:
+                do_patch(conn, payload, overwrite_array_values)
+            except json.decoder.JSONDecodeError:
+                raise Exception("JSONDecodeError: Check that your URL specified in -m is correct.")
+
 
 def check_valid_json(prop, val, row_count):
     """
