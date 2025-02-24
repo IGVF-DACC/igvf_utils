@@ -246,6 +246,7 @@ def main():
     conn.set_submission(True)
 
     schema = conn.profiles.get_profile_from_id(profile_id)
+    schema_properties = schema.properties
     infile = args.infile
     patch = args.patch
     rmpatch = args.rm_patch
