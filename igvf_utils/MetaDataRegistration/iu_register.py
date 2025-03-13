@@ -371,7 +371,13 @@ def create_payloads_from_json(schema, payloads):
     """
     if isinstance(payloads, dict):
         payloads = [payloads]
+    schema_props = [prop.name for prop in schema.properties]
     for payload in payloads:
+        for key in payload:
+            if key not in schema_props:
+                if key != RECORD_ID_FIELD:
+                    raise Exception(
+                        f"Unknown field name '{key}', which is not registered as a property in the specified schema at {schema.name}.")
         payload[iuc.Connection.PROFILE_KEY] = schema.name
         yield payload
 
