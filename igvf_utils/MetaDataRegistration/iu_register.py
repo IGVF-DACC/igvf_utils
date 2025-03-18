@@ -354,6 +354,8 @@ def create_payloads(schema, infile):
         with open(infile) as f:
             payloads = json.load(f)
         return create_payloads_from_json(schema, payloads)
+    except json.decoder.JSONDecodeError:
+        return create_payloads_from_jsonl(schema, infile)
     except ValueError:
         return create_payloads_from_tsv(schema, infile)
 
@@ -373,6 +375,29 @@ def create_payloads_from_json(schema, payloads):
         payloads = [payloads]
     schema_props = [prop.name for prop in schema.properties]
     for payload in payloads:
+        for key in payload:
+            if key not in schema_props:
+                if key != RECORD_ID_FIELD:
+                    raise Exception(
+                        f"Unknown field name '{key}', which is not registered as a property in the specified schema at {schema.name}.")
+        payload[iuc.Connection.PROFILE_KEY] = schema.name
+        yield payload
+
+def create_payloads_from_jsonl(schema, infile):
+    """
+    Generates payloads from a JSONL file
+
+    Args:
+        schema: `IgvfSchema`. The schema of the objects to be submitted.
+        payloads: dict or list parsed from a JSON input file.
+
+    Yields: dict. The payload that can be used to either register or patch the
+    metadata for each row.
+    """
+    schema_props = [prop.name for prop in schema.properties]
+    fh = open(infile, 'r')
+    for row in fh:
+        payload = json.loads(row)
         for key in payload:
             if key not in schema_props:
                 if key != RECORD_ID_FIELD:
