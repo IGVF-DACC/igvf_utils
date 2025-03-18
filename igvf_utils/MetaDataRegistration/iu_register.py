@@ -350,14 +350,18 @@ def create_payloads(schema, infile):
     Args:
         schema: `IgvfSchema`. The schema of the objects to be submitted.
     """
-    try:
+    extension = os.path.splitext(infile)[-1].lower()
+    if extension == 'json':
         with open(infile) as f:
             payloads = json.load(f)
         return create_payloads_from_json(schema, payloads)
-    except json.decoder.JSONDecodeError:
+    elif extension == 'jsonl':
         return create_payloads_from_jsonl(schema, infile)
-    except ValueError:
+    elif extension == 'tsv' or extension == 'txt':
         return create_payloads_from_tsv(schema, infile)
+    else:
+        raise Exception(
+            f"The extension of the input file '{extension}' is not a recognized format.")
 
 
 def create_payloads_from_json(schema, payloads):
