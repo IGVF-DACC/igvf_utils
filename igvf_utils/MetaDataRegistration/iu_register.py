@@ -8,8 +8,8 @@
 ###
 
 """
-Given a tab-delimited or JSON input file containing one or more records belonging to one of the profiles
-listed on the IGVF Portal (such as https://sandbox.igvf.org/profiles/document.json),
+Given a tab-delimited, JSON, or JSONL input file containing one or more records belonging to one
+of the profiles listed on the IGVF Portal (such as https://sandbox.igvf.org/profiles/document.json),
 either POSTS or PATCHES the records. The default is to POST each record; to PATCH instead, see
 the ``--patch`` option.
 
@@ -91,7 +91,7 @@ def get_parser():
     values need to be submitted as integers, not strings).""")
 
     parser.add_argument("-i", "--infile", required=True, help="""
-    The JSON input file or tab-delimited input file. 
+    The JSON, JSONL, or tab-delimited input file.
 
     **The tab-delimited file format:**
     Must have a field-header line as the first line.
@@ -118,7 +118,11 @@ def get_parser():
     Can be a single JSON object, or an array of JSON objects. Key names must match property names of
     an IGVF record type (profile).
 
-    **The following applies to either input file formats**
+    **The JSONL input file**
+    This format is largely similar to the JSON input file, but each row in the file is a single
+    JSON object.
+
+    **The following applies to all input file formats**
     When patching objects, you must specify the 'record_id' field to indicate the identifier of the record.
     Note that this a special field that is not present in the IGVF schema, and doesn't use the '#'
     prefix to mark it as non-schematic. Here you can specify any valid record identifier
@@ -345,19 +349,20 @@ def typecast(field_name, value, data_type, line_num):
 
 def create_payloads(schema, infile):
     """
-    First attempts to read the input file as JSON. If that fails, tries the TSV parser.
+    Based on the extension of the infile, generate payloads.
+    Only JSON, JSONL, or TSV (TXT) is permitted.
 
     Args:
         schema: `IgvfSchema`. The schema of the objects to be submitted.
     """
     extension = os.path.splitext(infile)[-1].lower()
-    if extension == 'json':
+    if extension == '.json':
         with open(infile) as f:
             payloads = json.load(f)
         return create_payloads_from_json(schema, payloads)
-    elif extension == 'jsonl':
+    elif extension == '.jsonl':
         return create_payloads_from_jsonl(schema, infile)
-    elif extension == 'tsv' or extension == 'txt':
+    elif extension == '.tsv' or extension == '.txt':
         return create_payloads_from_tsv(schema, infile)
     else:
         raise Exception(
@@ -393,7 +398,7 @@ def create_payloads_from_jsonl(schema, infile):
 
     Args:
         schema: `IgvfSchema`. The schema of the objects to be submitted.
-        payloads: dict or list parsed from a JSON input file.
+        payloads: dict or list parsed from a JSONL input file.
 
     Yields: dict. The payload that can be used to either register or patch the
     metadata for each row.
