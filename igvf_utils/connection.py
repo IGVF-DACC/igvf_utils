@@ -1796,19 +1796,28 @@ class Connection:
             #sys.stdout.write('\r'+line)
         popen.wait()
 
-        stdout, stderr = popen.communicate()
-        stdout = stdout.decode("utf-8")
-        stderr = stderr.decode("utf-8")
-        retcode = popen.returncode
-        if retcode:
-            error_msg = "Failed to upload file '{}' for {}.".format(file_path, file_id)
-            self.log_error(error_msg)
-            error_msg = (" Subprocess command '{cmd}' failed with return code '{retcode}'."
-                         " Stdout is '{stdout}'.  Stderr is '{stderr}'.").format(
-                cmd=cmd, retcode=retcode, stdout=stdout, stderr=stderr)
-            self.debug_logger.debug(error_msg)
-            raise FileUploadFailed(error_msg)
-        self.debug_logger.debug("AWS upload successful.")
+        read_stdout_attempts = 1
+        while read_stdout_attempts < 5:
+            try:
+                stdout, stderr = popen.communicate()
+                stdout = stdout.decode("utf-8")
+                stderr = stderr.decode("utf-8")
+                retcode = popen.returncode
+                if retcode:
+                    error_msg = "Failed to upload file '{}' for {}.".format(file_path, file_id)
+                    self.log_error(error_msg)
+                    error_msg = (" Subprocess command '{cmd}' failed with return code '{retcode}'."
+                                " Stdout is '{stdout}'.  Stderr is '{stderr}'.").format(
+                        cmd=cmd, retcode=retcode, stdout=stdout, stderr=stderr)
+                    self.debug_logger.debug(error_msg)
+                    raise FileUploadFailed(error_msg)
+                self.debug_logger.debug("AWS upload successful.")
+                break
+            except ValueError as e:
+                self.debug_logger.debug(e)
+                read_stdout_attempts = read_stdout_attempts + 1
+                popen.wait(2*read_stdout_attempts)
+
 
     def _calculate_multipart_chunksize(self, file_size_bytes: int) -> int:
         """
