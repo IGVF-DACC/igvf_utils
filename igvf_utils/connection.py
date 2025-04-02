@@ -801,6 +801,10 @@ class Connection:
         """
         attachment_props = [
             "attachment",
+            "atac_bam_summary_stats",
+            "atac_fragments_alignment_stats",
+            "atac_fragment_summary_stats",
+            "rnaseq_kb_info"
         ]
         path = "path"
 
