@@ -49,7 +49,7 @@ Configure the following secrets in your GitHub repository settings:
 
 1. Go to your GitHub repository
 2. Click "Releases" → "Create a new release"
-3. **Tag version**: Use format `v3.0.4` (must match version in version.py)
+3. **Tag version**: Use format `3.0.4` or `v3.0.4` (must match version in version.py)
 4. **Release title**: Use format `Release v3.0.4`
 5. **Description**: Add release notes describing changes
 6. **Pre-release**: Check this for alpha/beta releases (publishes to Test PyPI)
@@ -83,7 +83,7 @@ Once the release is published, GitHub Actions will automatically:
 ### Version Mismatch Error
 If you get a version mismatch error:
 1. Ensure `igvf_utils/version.py` contains the correct version
-2. Ensure the Git tag matches exactly (e.g., `v3.0.4` tag for version `3.0.4`)
+2. Ensure the Git tag matches exactly (e.g., `3.0.4` or `v3.0.4` tag for version `3.0.4`)
 3. Delete and recreate the release if needed
 
 ### Publishing Failures

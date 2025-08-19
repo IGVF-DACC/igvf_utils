@@ -36,9 +36,13 @@ jobs:
     - name: Verify version matches tag
       run: |
         PACKAGE_VERSION=$(python -c "import igvf_utils; print(igvf_utils.__version__)")
-        TAG_VERSION=${GITHUB_REF#refs/tags/v}
+        # Extract tag name, handling both 'v3.0.4' and '3.0.4' formats
+        TAG_REF=${GITHUB_REF#refs/tags/}
+        TAG_VERSION=${TAG_REF#v}
         if [ "$PACKAGE_VERSION" != "$TAG_VERSION" ]; then
           echo "Version mismatch: package version $PACKAGE_VERSION != tag version $TAG_VERSION"
+          echo "Full tag ref: $GITHUB_REF"
+          echo "Extracted tag: $TAG_REF"
           exit 1
         fi
         echo "Version verified: $PACKAGE_VERSION"
