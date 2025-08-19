@@ -9,11 +9,10 @@ description = "Client and tools for IGVF data submitters."
 readme = "README.md"
 license = "MIT"
 authors = [
-    {name = "Nathaniel Watson", email = "nathankw@stanford.edu"},
     {name = "Jennifer Jou", email = "jjou@stanford.edu"}
 ]
 maintainers = [
-    {name = "Nathaniel Watson", email = "nathankw@stanford.edu"},
+    {name = "Otto Jolanki", email = "ojolanki@stanford.edu"},
     {name = "Jennifer Jou", email = "jjou@stanford.edu"}
 ]
 classifiers = [
