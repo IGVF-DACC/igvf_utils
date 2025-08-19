@@ -1,0 +1,8 @@
+include README.md
+include LICENSE.txt
+include RELEASE.md
+include pyproject.toml
+recursive-include igvf_utils/tests/data *
+recursive-exclude * __pycache__
+recursive-exclude * *.py[co]
+recursive-exclude * .DS_Store
