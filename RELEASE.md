@@ -85,30 +85,3 @@ If you get a version mismatch error:
 1. Ensure `igvf_utils/version.py` contains the correct version
 2. Ensure the Git tag matches exactly (e.g., `3.0.4` or `v3.0.4` tag for version `3.0.4`)
 3. Delete and recreate the release if needed
-
-### Publishing Failures
-If publishing fails:
-1. Check GitHub Actions logs for specific errors
-2. Verify API tokens are correctly set in repository secrets
-3. Ensure the version number hasn't been used before on PyPI
-
-### Test PyPI Testing
-To test the release process without affecting production:
-1. Create a pre-release on GitHub
-2. This will publish to Test PyPI instead
-3. Test installation: `pip install -i https://test.pypi.org/simple/ igvf-utils`
-
-## Security Notes
-
-- Never commit API tokens to the repository
-- Use GitHub repository secrets for sensitive information
-- The workflow uses trusted publishing actions from PyPA
-- Consider using PyPI trusted publishing for enhanced security
-
-## Rollback Process
-
-If a release needs to be rolled back:
-1. You cannot delete releases from PyPI once published
-2. Publish a new patch version with fixes
-3. Update documentation to note the problematic version
-4. Consider yanking the problematic release on PyPI (makes it invisible to new installations)
