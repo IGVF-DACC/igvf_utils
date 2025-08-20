@@ -1,0 +1,83 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "igvf-utils"
+dynamic = ["version"]
+description = "Client and tools for IGVF data submitters."
+readme = "README.md"
+license = "MIT"
+authors = [
+    {name = "Jennifer Jou", email = "jjou@stanford.edu"}
+]
+maintainers = [
+    {name = "Otto Jolanki", email = "ojolanki@stanford.edu"},
+    {name = "Jennifer Jou", email = "jjou@stanford.edu"}
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Science/Research",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+]
+keywords = ["genomics", "IGVF", "data-submission", "bioinformatics"]
+requires-python = ">=3.8"
+dependencies = [
+    "awscli",
+    "boto3",
+    "exifread",
+    "google-api-python-client",
+    "google-cloud-storage",
+    "inflection",
+    "jsonschema",
+    "packaging",
+    "pillow",
+    "requests",
+    "urllib3",
+]
+
+[project.optional-dependencies]
+docs = [
+    "sphinx",
+    "sphinx-rtd-theme",
+]
+
+[project.urls]
+Homepage = "https://github.com/IGVF-DACC/igvf_utils"
+Documentation = "http://igvf-utils.readthedocs.io/"
+Repository = "https://github.com/IGVF-DACC/igvf_utils"
+Issues = "https://github.com/IGVF-DACC/igvf_utils/issues"
+
+[project.scripts]
+iu_check_not_posted = "igvf_utils.scripts.iu_check_not_posted:main"
+iu_create_gcp_url_list = "igvf_utils.scripts.iu_create_gcp_url_list:main"
+iu_generate_upload_creds = "igvf_utils.scripts.iu_generate_upload_creds:main"
+iu_get_accessions = "igvf_utils.scripts.iu_get_accessions:main"
+iu_get_aliases = "igvf_utils.scripts.iu_get_aliases:main"
+iu_patch_property = "igvf_utils.scripts.iu_patch_property:main"
+iu_s3_to_gcp = "igvf_utils.scripts.iu_s3_to_gcp:main"
+iu_search_results_json = "igvf_utils.scripts.iu_search_results_json:main"
+iu_register = "igvf_utils.MetaDataRegistration.iu_register:main"
+
+[tool.setuptools]
+packages = ["igvf_utils", "igvf_utils.scripts", "igvf_utils.MetaDataRegistration"]
+include-package-data = true
+
+[tool.setuptools.package-data]
+igvf_utils = ["tests/data/*"]
+
+[tool.setuptools.dynamic]
+version = {attr = "igvf_utils.version.__version__"}
+
+[tool.pytest.ini_options]
+testpaths = ["igvf_utils/tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
