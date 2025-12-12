@@ -98,9 +98,9 @@ class Connection:
         # used as part of the file name.
 
         #: An indication of which Portal instance to use. Set to 'prod' for the production Portal,
-        #: and 'sandbox' for the sandbox Portal. Alternatively, you can set an explicit host, such as
-        #: demo.igvf.org. Leaving the default of None means to use the value of the `IGVF_MODE`
-        #: environment variable.
+        #: 'sandbox' for the sandbox Portal, or 'staging' for the staging Portal. Alternatively,
+        #: you can set an explicit host, such as demo.igvf.org. Leaving the default of None
+        #: means to use the value of the `IGVF_MODE` environment variable.
         self.igvf_modes = IgvfModes()
         for name, host in iu.IGVF_MODES.items():
             self.igvf_modes.add_mode(host["url"], mode_name=name)

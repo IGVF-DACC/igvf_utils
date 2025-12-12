@@ -66,12 +66,14 @@ except KeyError:
 PROFILES_URL = "profiles"
 
 IGVF_SANDBOX_MODE = "sandbox"
+IGVF_STAGING_MODE = "staging"
 IGVF_PROD_MODE = "prod"
 
 #: A hash of known hosts one can connect to, where the key can be passed to the `igvf_mode` argument
 #: when instantiating the `connection.Connection` class.
 IGVF_MODES = {
     IGVF_SANDBOX_MODE: {"url": "https://api.sandbox.igvf.org/"},
+    IGVF_STAGING_MODE: {"url": "https://api.staging.igvf.org/"},
     IGVF_PROD_MODE: {"url": "https://api.data.igvf.org/"}
 }
 
