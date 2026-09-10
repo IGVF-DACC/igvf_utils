@@ -8,7 +8,9 @@ See the [wiki](https://github.com/IGVF-DACC/igvf_utils/wiki) to get started.
 API and script documentation are available on [Read the Docs](http://igvf-utils.readthedocs.io/).
 
 # Installation
-Please clone this repository (e.g. `git clone https://github.com/IGVF-DACC/igvf_utils.git`) and then refer to instructions on the [Installation wiki page](https://github.com/IGVF-DACC/igvf_utils/wiki/Installation).
+The package can be installed using `pip install igvf-utils`.
+
+Alternatively, clone this repository (e.g. `git clone https://github.com/IGVF-DACC/igvf_utils.git`) and then refer to instructions on the [Installation wiki page](https://github.com/IGVF-DACC/igvf_utils/wiki/Installation).
 
 # Latest news
 
